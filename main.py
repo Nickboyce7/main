@@ -4,6 +4,9 @@ recreate something similar to Galaga/Space Invaders. If that gets boring/hard/or
 God Speed
 
 Additionally, code will probably be heavily commented to encourage understanding
+
+DRAWING RECTANGLES: the rect argument is as such
+[pixels from left side of screen, pixels from top side of screen, length of rect, height of rect]
 '''
 
 import pygame
