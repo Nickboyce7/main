@@ -23,8 +23,34 @@ dt = 0
 
 
 class Player:
-    def __init__(self, x_coord, y_coord, width, height):
+    def __init__(self, x_coord, y_coord, width, height, speed):
         self.rectangle = pygame.Rect(x_coord, y_coord, width, height)
+        self.location = pygame.Vector2(x_coord, y_coord)
+        self.speed = speed
+
+    def shoot(self):
+        bullet_calls.append((pygame.time.get_ticks()) / 1000)
+        if len(bullet_calls) < 2:
+            new_bullet = Bullet(self.location, 5)
+            bullets.append(new_bullet)
+        else:
+            if bullet_calls[-1] - bullet_calls[-2] < 1:
+                pass
+            else:
+                new_bullet = Bullet(self.location, 5)
+                bullets.append(new_bullet)
+
+
+    def move(self, direction):
+        # U,D,L,R, for up, down, left, right directions
+        if direction == "U":
+            self.rectangle.y -= self.speed * dt
+        if direction == "D":
+            self.rectangle.y += self.speed * dt
+        if direction == "L":
+            self.rectangle.x -= self.speed * dt
+        if direction == "R":
+            self.rectangle.x += self.speed * dt
 
 
 class Enemy:
@@ -32,10 +58,24 @@ class Enemy:
         self.rectangle = pygame.Rect(x_coord, y_coord, width, height)
 
 
+class Bullet:
+    def __init__(self, position, speed):
+        self.position = position
+        self.speed = speed
+        self.rectangle = pygame.Rect(self.position.x, self.position.y, 5, 10)
+
+    def move(self):
+        self.position.y += self.speed
+
+    # def draw(self):
+    #     pygame.Rect(self.position.x, self.position.y, 5, 10)
+
 USER_START = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-user = Player(700, 350, 15, 15)
+user = Player(700, 350, 15, 15, 300)
 enemy1 = Enemy(300, 300, 30, 30)
 
+bullets = []
+bullet_calls = []
 
 # Creating a check border function to determine if player is in bounds of screen
 def check_border(pos_x, pos_y, screen_x, screen_y):
@@ -74,17 +114,26 @@ while running:
     pygame.draw.rect(screen, "blue", enemy1.rectangle)
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:  # "K_w" is "pressing the w key"
-        user.rectangle.y -= 300 * dt
+    if keys[pygame.K_w]:
+        user.move("U")
 
     if keys[pygame.K_s]:
-        user.rectangle.y += 300 * dt
+        user.move("D")
 
     if keys[pygame.K_a]:
-        user.rectangle.x -= 300 * dt
+        user.move("L")
 
     if keys[pygame.K_d]:
-        user.rectangle.x += 300 * dt
+        user.move("R")
+
+    if keys[pygame.K_SPACE]:
+        user.shoot()
+        pewpew = Bullet(user.location, 5)
+        pewpew.move()
+        pygame.draw.rect(screen, "white", pewpew.rectangle)
+        print(pewpew.position)
+       # pygame.time.delay(500)
+        print(bullets)
 
     user.rectangle.x, user.rectangle.y = check_border(user.rectangle.x, user.rectangle.y, screen_width, screen_height)
     if pygame.Rect.colliderect(user.rectangle, enemy1.rectangle):
@@ -99,3 +148,4 @@ while running:
     dt = clock.tick(60) / 1000  # limits framerate somehow
 
 pygame.quit()
+print()
