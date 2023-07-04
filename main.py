@@ -76,6 +76,7 @@ enemy1 = Enemy(300, 300, 30, 30)
 
 bullets = []
 bullet_calls = []
+blaster_sound = pygame.mixer.Sound("blaster_shot.wav")
 
 # Creating a check border function to determine if player is in bounds of screen
 def check_border(pos_x, pos_y, screen_x, screen_y):
@@ -131,6 +132,7 @@ while running:
         pewpew = Bullet(user.location, 5)
         pewpew.move()
         pygame.draw.rect(screen, "white", pewpew.rectangle)
+        pygame.mixer.Sound.play(blaster_sound)
         print(pewpew.position)
        # pygame.time.delay(500)
         print(bullets)
