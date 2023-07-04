@@ -21,37 +21,25 @@ clock = pygame.time.Clock()
 running = True  # Initializing pygame packages, setting screen size/resolution, creating game clock
 dt = 0
 
+
 class Player:
-    def __init__(self, position, size):
-        self.position = position
-        self.size = size
-
-    def get_position(self):
-        return self.position
-
-    def get_size(self):
-        return self.size
+    def __init__(self, x_coord, y_coord, width, height):
+        self.rectangle = pygame.Rect(x_coord, y_coord, width, height)
 
 
 class Enemy:
-    def __init__(self, position, size):
-        self.position = position
-        self.size = size
-
-    def get_position(self):
-        return self.position
-
-    def get_size(self):
-        return self.size
+    def __init__(self, x_coord, y_coord, width, height):
+        self.rectangle = pygame.Rect(x_coord, y_coord, width, height)
 
 
 USER_START = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-user = Player(USER_START, 20)
-enemy1 = Enemy((300, 300), 15)
+user = Player(700, 350, 15, 15)
+enemy1 = Enemy(300, 300, 30, 30)
 
 
 # Creating a check border function to determine if player is in bounds of screen
 def check_border(pos_x, pos_y, screen_x, screen_y):
+    # For rectangles, it follows the top left corner. When moved to bottom right, rectangle disappears
     if (0 < pos_x < screen_x) and (0 < pos_y < screen_y):
         pass
     elif pos_x < 0:
@@ -65,17 +53,10 @@ def check_border(pos_x, pos_y, screen_x, screen_y):
     return pos_x, pos_y
 
 
-def check_collision(object_one, object_two):
-
-    res = tuple(map(lambda i, j: i - j, object_two.get_position(), object_one.get_position()))
-
-    if m.sqrt(res[0]**2 + res[1]**2) < (object_one.get_size() + object_two.get_size()):
-        print("hit")
-        object_one.position = pygame.Vector2(600, 300)
-    else:
-        pass
-
-    return object_one.position, object_two.position
+def circle_movement(center, radius, speed, object, time):
+    object.x = radius * m.cos((speed * time / 1000) % (2 * m.pi)) + center[0]
+    object.y = radius * m.sin((speed * time / 1000) % (2 * m.pi)) + center[1]
+    return object.x, object.y
 
 
 while running:
@@ -88,34 +69,33 @@ while running:
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("black")
 
-    #  pygame.draw.circle(screen, "red", player_pos, 20)  # Set circle to screen, choose color, then size
-    pygame.draw.circle(screen, "red", user.position, user.size)
+    pygame.draw.rect(screen, "red", user.rectangle)
 
-    pygame.draw.circle(screen, "blue", enemy1.position, enemy1.size)
+    pygame.draw.rect(screen, "blue", enemy1.rectangle)
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:  # "K_w" is "pressing the w key"
-        user.position.y -= 300 * dt  # dt is the duration (somehow). The longer its held, more the position changes
+        user.rectangle.y -= 300 * dt
 
     if keys[pygame.K_s]:
-        user.position.y += 300 * dt
+        user.rectangle.y += 300 * dt
 
     if keys[pygame.K_a]:
-        user.position.x -= 300 * dt
+        user.rectangle.x -= 300 * dt
 
     if keys[pygame.K_d]:
-        user.position.x += 300 * dt
+        user.rectangle.x += 300 * dt
 
-    user.position.x, user.position.y = check_border(user.position.x, user.position.y, screen_width, screen_height)
-    user.position, enemy1.position = check_collision(user, enemy1)
-    # print(player_pos.x, player_pos.y)
+    user.rectangle.x, user.rectangle.y = check_border(user.rectangle.x, user.rectangle.y, screen_width, screen_height)
+    if pygame.Rect.colliderect(user.rectangle, enemy1.rectangle):
+        user.rectangle.x = 600
+        user.rectangle.y = 350
 
-    # flip() the display to put your work on screen
+    enemy1.rectangle.x, enemy1.rectangle.y = circle_movement((400,400), 100, 2, enemy1.rectangle, pygame.time.get_ticks())
+  #  print(pygame.time.get_ticks())
+
     pygame.display.flip()  # I don't understand why you have to flip the screen??
 
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
     dt = clock.tick(60) / 1000  # limits framerate somehow
 
 pygame.quit()
