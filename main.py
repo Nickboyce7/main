@@ -22,35 +22,42 @@ running = True  # Initializing pygame packages, setting screen size/resolution, 
 dt = 0
 
 
-class Player:
-    def __init__(self, x_coord, y_coord, width, height, speed):
-        self.rectangle = pygame.Rect(x_coord, y_coord, width, height)
-        self.location = pygame.Vector2(x_coord, y_coord)
-        self.speed = speed
+# class Player:
+#     def __init__(self, x_coord, y_coord, width, height, speed):
+#         self.rectangle = pygame.Rect(x_coord, y_coord, width, height)
+#         self.location = pygame.Vector2(x_coord, y_coord)
+#         self.speed = speed
+#
+#     def shoot(self):
+#         return Bullet(self.location, 5)
+#         # bullet_calls.append((pygame.time.get_ticks()) / 1000)
+#         # if len(bullet_calls) < 2:
+#         #     new_bullet = Bullet(self.location, 5)
+#         #     bullets.append(new_bullet)
+#         # else:
+#         #     if bullet_calls[-1] - bullet_calls[-2] < 1:
+#         #         pass
+#         #     else:
+#         #         new_bullet = Bullet(self.location, 5)
+#         #         bullets.append(new_bullet)
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((15, 15))
+        self.image.fill("red")
+        self.rect = self.image.get_rect(center = (screen_width / 2, screen_height / 2))
 
-    def shoot(self):
-        bullet_calls.append((pygame.time.get_ticks()) / 1000)
-        if len(bullet_calls) < 2:
-            new_bullet = Bullet(self.location, 5)
-            bullets.append(new_bullet)
-        else:
-            if bullet_calls[-1] - bullet_calls[-2] < 1:
-                pass
-            else:
-                new_bullet = Bullet(self.location, 5)
-                bullets.append(new_bullet)
 
-
-    def move(self, direction):
+    def update(self, direction):  # TODO Fix function name bc update is already a func in sprite
         # U,D,L,R, for up, down, left, right directions
         if direction == "U":
-            self.rectangle.y -= self.speed * dt
+            self.rect.y -= 300 * dt
         if direction == "D":
-            self.rectangle.y += self.speed * dt
+            self.rect.y += 300 * dt
         if direction == "L":
-            self.rectangle.x -= self.speed * dt
+            self.rect.x -= 300 * dt
         if direction == "R":
-            self.rectangle.x += self.speed * dt
+            self.rect.x += 300 * dt
 
 
 class Enemy:
@@ -71,7 +78,10 @@ class Bullet:
     #     pygame.Rect(self.position.x, self.position.y, 5, 10)
 
 USER_START = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-user = Player(700, 350, 15, 15, 300)
+#user = Player(700, 350, 15, 15, 300)
+user = Player()
+player_group = pygame.sprite.Group()
+player_group.add(user)
 enemy1 = Enemy(300, 300, 30, 30)
 
 bullets = []
@@ -110,44 +120,45 @@ while running:
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("black")
 
-    pygame.draw.rect(screen, "red", user.rectangle)
+   # pygame.draw.rect(screen, "red", user.rectangle)
 
     pygame.draw.rect(screen, "blue", enemy1.rectangle)
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
-        user.move("U")
+        user.update("U")
 
     if keys[pygame.K_s]:
-        user.move("D")
+        user.update("D")
 
     if keys[pygame.K_a]:
-        user.move("L")
+        user.update("L")
 
     if keys[pygame.K_d]:
-        user.move("R")
+        user.update("R")
 
     if keys[pygame.K_SPACE]:
-        user.shoot()
-        pewpew = Bullet(user.location, 5)
-        pewpew.move()
-        pygame.draw.rect(screen, "white", pewpew.rectangle)
-        pygame.mixer.Sound.play(blaster_sound)
-        print(pewpew.position)
-       # pygame.time.delay(500)
-        print(bullets)
+        bullets.append(user.shoot())
+       #  user.shoot()
+       #  pewpew = Bullet(user.location, 5)
+       #  pewpew.move()
+       #  pygame.draw.rect(screen, "white", pewpew.rectangle)
+       #  pygame.mixer.Sound.play(blaster_sound)
+       #  print(pewpew.position)
+       # # pygame.time.delay(500)
+       #  print(bullets)
 
-    user.rectangle.x, user.rectangle.y = check_border(user.rectangle.x, user.rectangle.y, screen_width, screen_height)
-    if pygame.Rect.colliderect(user.rectangle, enemy1.rectangle):
-        user.rectangle.x = 600
-        user.rectangle.y = 350
+    # user.rectangle.x, user.rectangle.y = check_border(user.rectangle.x, user.rectangle.y, screen_width, screen_height)
+    # if pygame.Rect.colliderect(user.rectangle, enemy1.rectangle):
+    #     user.rectangle.x = 600
+    #     user.rectangle.y = 350
 
     enemy1.rectangle.x, enemy1.rectangle.y = circle_movement((400,400), 100, 2, enemy1.rectangle, pygame.time.get_ticks())
   #  print(pygame.time.get_ticks())
 
+    player_group.draw(screen)
     pygame.display.flip()  # I don't understand why you have to flip the screen??
 
     dt = clock.tick(60) / 1000  # limits framerate somehow
 
 pygame.quit()
-print()
