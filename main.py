@@ -100,7 +100,7 @@ enemy_group.add(enemy1)
 
 bullet_group = pygame.sprite.Group()
 
-blaster_sound = pygame.mixer.Sound("blaster_shot.wav")
+blaster_sound = pygame.mixer.Sound("blaster_shot_better.wav")
 
 # Creating a check border function to determine if player is in bounds of screen
 def check_border(pos_x, pos_y, screen_x, screen_y):
@@ -130,10 +130,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:  # Only quits if X is hit in corner
             running = False
+
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
                 bullet_group.add(user.shoot())
-                print(bullet_group)
+                pygame.mixer.Sound.play(blaster_sound)
         # handle key up event
 
     # fill the screen with a color to wipe away anything from last frame
