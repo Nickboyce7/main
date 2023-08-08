@@ -71,6 +71,7 @@ class Enemy(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.Surface((30, 30))
         self.image.fill("blue")
+        self.health = 2
         self.rect = self.image.get_rect(center=(300, 300))
 
 
@@ -158,7 +159,21 @@ while running:
         user.rect.x = 600
         user.rect.y = 350
 
-    enemy1.rect.x, enemy1.rect.y = circle_movement((400,400), 100, 2, enemy1.rect, pygame.time.get_ticks())
+    for bullet in bullet_group.sprites():
+        if pygame.Rect.colliderect(bullet.rect, enemy1.rect):
+            if enemy1.health > 0:
+                enemy1.health -= 1
+                bullet_group.remove(bullet)
+            else:
+                enemy1.image.fill("green")  # TODO: remove enemy if health == 0
+                bullet_group.remove(bullet)
+
+    enemy1.rect.x, enemy1.rect.y = circle_movement((400, 400), 100, 2, enemy1.rect, pygame.time.get_ticks())
+
+    # Removing bullets once they leave the border
+    for bullet in bullet_group.sprites():
+        if bullet.rect.y < -20:
+            bullet_group.remove(bullet)
 
     player_group.draw(screen)
     enemy_group.draw(screen)
@@ -166,6 +181,6 @@ while running:
     bullet_group.update()
     pygame.display.flip()  # I don't understand why you have to flip the screen??
 
-    dt = clock.tick(60) / 1000  # limits framerate somehow
+    dt = clock.tick(60) / 1000  # limits frame rate somehow
 
 pygame.quit()
